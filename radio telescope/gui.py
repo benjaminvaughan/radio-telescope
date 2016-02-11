@@ -70,6 +70,11 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.get_cur_pos, self.timer)       
         self.timer.Start(50)
  
+        #timer 2
+        self.timer2 = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.calc_diff, self.timer2)
+        self.timer2.Start(50)
+
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
         self.Bind(wx.EVT_BUTTON, self.slew, self.btn2)
@@ -125,8 +130,17 @@ class Frame(wx.Frame):
         self.rad = wx.TextCtrl(self.panel, -1, style = wx.TE_READONLY)
         self.decd = wx.TextCtrl(self.panel, -1, style = wx.TE_READONLY)
 
-        
+        #creating difference printout
+        self.diff_label = wx.StaticText(self.panel, label = "Difference in current and target positions")
+        self.diff_az_label = wx.StaticText(self.panel, label = "Altitude")
+        self.diff_alt_label = wx.StaticText(self.panel, label = "Azimuth")
 
+	self.diff_az = wx.TextCtrl(self.panel, -1)
+        self.diff_alt = wx.TextCtrl(self.panel, -1)
+
+
+       
+        #sizers
         master_sizer = wx.BoxSizer(wx.VERTICAL)
         top_sizer = wx.BoxSizer(wx.HORIZONTAL)
         left_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -164,6 +178,11 @@ class Frame(wx.Frame):
         mid_sizer.Add(self.curr_alt)
         mid_sizer.Add(self.cur_az_lab)
         mid_sizer.Add(self.curr_az)
+        mid_sizer.Add(self.diff_label)
+        mid_sizer.Add(self.diff_az_label)
+        mid_sizer.Add(self.diff_az)
+        mid_sizer.Add(self.diff_alt_label)
+        mid_sizer.Add(self.diff_alt)
         
         #master sizer
         master_sizer.Add(self.err_label, border=20, flag=wx.LEFT|wx.RIGHT|wx.EXPAND)
@@ -192,7 +211,7 @@ class Frame(wx.Frame):
         try:
             
             calc = Ra_Dec()
-            alt, az = calc.calculate(float(self.in_ra.GetValue()), float(self.in_dec.GetValue()))
+            alt, az, error = calc.calculate(float(self.in_ra.GetValue()), float(self.in_dec.GetValue()))
             alt_str = str(alt)
             az_str = str(az)
             self.in_alt.SetValue(alt_str)
@@ -201,6 +220,16 @@ class Frame(wx.Frame):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exc().splitlines()
             self.error.SetValue(lines[-1])
+
+    def calc_diff(self, e):
+        cur_alt = float(self.curr_alt.GetValue())
+        cur_az  = float(self.curr_az.GetValue())
+        tar_alt = float(self.in_alt.GetValue())
+        tar_az  = float(self.in_az.GetValue())
+        alt_d = cur_alt - tar_alt
+        az_d = cur_az - tar_az
+        self.diff_alt.SetValue(str(alt_d))
+        self.diff_az.SetValue(str(az_d))
 
     def block_non_numbers(event):
         key_code = event.GetKeyCode()

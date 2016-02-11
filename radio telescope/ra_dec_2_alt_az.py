@@ -17,7 +17,7 @@ class Ra_Dec():
         data = Data()
         year, month, day, time = self.get_datetime()
         utc = julian_date(year, month, day, time)
-        xp, yp, ut1_utc = data.get_x_y_ut1_utc()
+        xp, yp, ut1_utc, error = data.get_x_y_ut1_utc()
         ut1 = utc + ut1_utc
         location = OnSurface()
         location.latitude = 37.35
@@ -28,7 +28,7 @@ class Ra_Dec():
         zd_az, rar_decr = novas.compat.equ2hor(ut1, dt, xp, yp, location, ra, dec)
         alt = 90 - zd_az[0]
         az = zd_az[1]
-        return alt, az
+        return alt, az, error
     
 if __name__ == "__main__":
 

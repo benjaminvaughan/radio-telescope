@@ -12,8 +12,8 @@ Look for today in it and return values for today
 class Data:
     
     def __init__(self):
+        
         URL = 'http://maia.usno.navy.mil/ser7/mark3.out'
-    
         self.req = requests.get(url = URL)
         self.now = datetime.datetime.now()
 
@@ -41,11 +41,14 @@ class Data:
                     x = float(elems[4])
                     y = float(elems[6])
                     ut1_utc = float(elems[8])
-                    return x, y, ut1_utc
+                    error = "no error"
+                    return x, y, ut1_utc, error
             except ValueError:
-                pass
-            
-        return False
+
+                error = "cannot locate website server http://maia.usno.navy.mil/ser7/mark3.out"
+                return 0,0,0, error
+
+
 """
 if __name__ == "__main__":
     print(get_x_y_ut1_utc())
