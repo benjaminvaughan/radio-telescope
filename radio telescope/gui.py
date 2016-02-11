@@ -9,6 +9,7 @@ from conversions import *
 from threading import Thread
 import time
 from parts import *
+from telescope import *
 
 class Frame(wx.Frame):
 
@@ -226,20 +227,17 @@ class Frame(wx.Frame):
         self.Destroy()
 
     def slew(self, e):
-        print("This function needs to be written")
+        telescope.slew(float(self.in_alt.GetValue()), float(self.in_az.GetValue()))
 
     def get_cur_pos(self, e):
         holder = encoder_get()
         self.curr_az.SetValue(str(holder[1]))
         self.curr_alt.SetValue(str(holder[0]))
                              
-alt_encoder = Encoder(27 , 17, "alt")
-az_encoder = Encoder(22, 18, "az")
-
 
 def encoder_get():
-    cur_alt = alt_encoder.get_degrees()
-    cur_az = az_encoder.get_degrees()
+    cur_alt = telescope.alt_encoder.get_degrees()
+    cur_az = telescope.az_encoder.get_degrees()
     return cur_alt, cur_az
     
 
@@ -247,8 +245,7 @@ def encoder_get():
 
 if __name__ == "__main__":
     app = wx.App()
-    alt_encoder.run_encoder()
-    az_encoder.run_encoder()
+    telescope = Telescope()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()

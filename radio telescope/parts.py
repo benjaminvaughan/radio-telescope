@@ -106,7 +106,7 @@ class Motor():
             self.set_frequency_dutycycle(128, 1000)
         elif speed == 7:
             self.full_step()
-            self.set_frequency_dutycycle(128, 2000)
+            self.set_frequency_dutycycle(255, 4000)
         else:
             print("Haha")
 
@@ -122,8 +122,8 @@ class Motor():
 
 if __name__ == "__main__":
     pi = pigpio.pi()
-    alt_encoder = Encoder(27, 17, "alt")
-    alt_encoder.run_encoder()
+#    alt_encoder = Encoder(27, 17, "alt")
+#    alt_encoder.run_encoder()
     prev_degree = None
     """
     while 1:
@@ -132,7 +132,6 @@ if __name__ == "__main__":
             prev_degree1 = alt_encoder.degrees
             time.sleep(0.1)       
     """
-    alt_motor = Motor(23, 24, 21, 20, 16)
-    alt_motor.set_direction(1)
+    alt_motor = Motor(23, 24, 13, 19, 26)
+    alt_motor.set_direction(0)
     alt_motor.set_speed(7)
-

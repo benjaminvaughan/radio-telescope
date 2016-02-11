@@ -3,10 +3,11 @@ from parts import *
 class Telescope():
 
     def __init__(self):
-        self.alt_encoder = Encoder()
-        self.az_encoder  = Encoder()
-        self.alt_motor   = Motor()
-        self.az_motor    = Motor()
+
+        self.alt_encoder = Encoder(27, 17, "alt")
+        self.az_encoder  = Encoder(18, 22, "az")
+        self.alt_motor   = Motor(23, 24, 21, 20, 16)
+        self.az_motor    = Motor(19, 26, 5, 6, 13)
         self.alt_encoder.run_encoder()
         self.az_encoder.run_encoder()
 
@@ -69,11 +70,11 @@ class Telescope():
             self.az_motor.set_speed(7)
 
     def slew(self, tar_az, tar_alt):
-        cur_az = az_encoder.get_degrees()
-        cur_alt = alt_encoder.get_degrees()
+        cur_az = self.az_encoder.get_degrees()
+        cur_alt = self.alt_encoder.get_degrees()
         if cur_az != tar_az:
             self.az_update(tar_az)
-        if cur_alt 1= tar_alt:
+        if cur_alt != tar_alt:
             self.alt_update
     
 if __name__ == "__main__":
