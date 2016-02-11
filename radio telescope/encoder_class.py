@@ -13,7 +13,7 @@ class Encoder():
         self.a_state = None
         self.degree = 0
         self.position = 0
-        self.constant = 360.0 / 5000
+        self.constant = 360.0 / 600
         self.encoder_id = encoder_id
 
     def call_back_a(self, pin, level, tick):

@@ -115,3 +115,4 @@ class Stellarium():
             if i is self.sock:
                 self.conn, self.addr = self.sock.accept()
                 open_sockets.append(self.conn)
+                return open_sockets

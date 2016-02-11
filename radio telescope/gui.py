@@ -21,7 +21,7 @@ class Frame(wx.Frame):
         #initializing class
         self.converter = Ra_Dec()
         self.stellarium = Stellarium()
-        #self.stellarium.accept()
+        self.stellarium.accept()
         
         #menu bar
         menubar = wx.MenuBar()
@@ -94,7 +94,7 @@ class Frame(wx.Frame):
         #stellarium timer2
         self.sttimer2 = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_data, self.sttimer2)
-        self.sttimer2.Start(100)
+        self.sttimer2.Start(1000)
 
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
