@@ -1,17 +1,16 @@
 from parts import *
-
+from actuator import *
 class Telescope():
 
     def __init__(self, pi = None):
 
         if pi is None:
             pi = pigpio.pi()
-        self.alt_encoder = Encoder(27, 17, "alt")
-        self.az_encoder  = Encoder(18, 22, "az")
-        self.az_motor    = Motor(19, 26, 5, 6, 13, 25)
-        self.alt_motor   = Motor(20, 21, 13, 19, 26, 16)
-        self.alt_encoder.run_encoder()
+        self.az_encoder  = Encoder(17, 18, "az")
+        self.az_motor    = Motor(20, 21)
         self.az_encoder.run_encoder()
+        self.actuator = Actuator(27, 22, 23, 25, 24)
+        self.actuator.run_encoder()
 
     def alt_dir(self, tar_alt):
         """
@@ -22,12 +21,12 @@ class Telescope():
         alt_err - the difference between the target altitude and the actual altitude
         Original Author: Benjamin Vaughan
         """
-        cur_alt = self.alt_encoder.get_degrees()
+        cur_alt = self.actuator.get_degrees()
         alt_err = tar_alt - cur_alt
         if alt_err > 0:
-            self.alt_motor.set_direction(1)
+            self.actuator.push()
         else:
-            self.alt_motor.set_direction(0)
+            self.actuator.pull()
         return alt_err
     
     def az_dir(self, tar_az):
@@ -60,24 +59,10 @@ class Telescope():
         alt_err = self.alt_dir(tar_alt)
         alt_err = abs(alt_err)
 
-        if alt_err >= 240:
-            self.alt_motor.set_speed(7) 
-        elif alt_err >= 200:
-            self.alt_motor.set_speed(6)
-        elif alt_err >= 140:
-            self.alt_motor.set_speed(5)
-        elif alt_err >= 60:
-            self.alt_motor.set_speed(4)
-        elif alt_err >= 50:
-            self.alt_motor.set_speed(3)
-        elif alt_err >= 30:
-            self.alt_motor.set_speed(2)
-        elif alt_err >= 1:
-            self.alt_motor.set_speed(1)
-        elif alt_err >= 0:
-            self.alt_motor.stop_motor()
-            print("target reached stopping motor")
-
+        if alt_err < 30:
+            self.actuator.turn_motor()
+        else:
+            self.actuator.kill()
     def az_update(self, tar_az):
         """
         The purpose of this function is to act as an update function
@@ -91,17 +76,17 @@ class Telescope():
         az_err = self.az_dir(tar_az)
         az_err = abs(az_err)
         if az_err >= 0:
-            self.az_motor.set_speed(0)
+            self.az_motor.set_speed(7)
         elif az_err >= 35:
-            self.az_motor.set_speed(1)
+            self.az_motor.set_speed(7)
         elif az_err >= 50:
-            self.az_motor.set_speed(1)
+            self.az_motor.set_speed(7)
         elif az_err >= 80:
-            self.az_motor.set_speed(1)
+            self.az_motor.set_speed(7)
         elif az_err >= 160:
-            self.az_motor.set_speed(1)
+            self.az_motor.set_speed(7)
         elif az_err >= 240:
-            self.az_motor.set_speed(1)
+            self.az_motor.set_speed(7)
 
     def slew(self, tar_az, tar_alt):
         """
@@ -115,13 +100,13 @@ class Telescope():
         """
 
         cur_az = self.az_encoder.get_degrees()
-        cur_alt = self.alt_encoder.get_degrees()
+        cur_alt = self.actuator.get_degrees()
         if cur_az != tar_az:
             self.az_update(tar_az)
         if cur_alt != tar_alt:
-             self.alt_update(tar_alt)
+            self.alt_update(tar_alt)
     
 if __name__ == "__main__":
     telescope = Telescope()
-    telescope.slew(280, 180)
+    telescope.slew(280, 20)
     

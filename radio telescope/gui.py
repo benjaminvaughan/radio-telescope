@@ -11,6 +11,8 @@ import time
 from parts import *
 from telescope import *
 from stellarium import *
+from splash import Splash
+
 
 class Frame(wx.Frame):
 
@@ -21,6 +23,7 @@ class Frame(wx.Frame):
         #initializing class
         self.converter = Ra_Dec()
         self.stellarium = Stellarium()
+        self.splash = Splash()
         self.stellarium.accept()
         
         #menu bar
@@ -342,7 +345,7 @@ class Frame(wx.Frame):
                                      
 
 def encoder_get():
-    cur_alt = telescope.alt_encoder.get_degrees()
+    cur_alt = telescope.actuator.get_degrees()
     cur_az = telescope.az_encoder.get_degrees()
     return cur_alt, cur_az
     
