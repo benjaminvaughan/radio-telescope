@@ -1,0 +1,8 @@
+
+import requests
+
+URL = 'http://maia.usno.mil/ser7/mark3.out'
+
+req = requests.get(url = URL)
+
+print r
