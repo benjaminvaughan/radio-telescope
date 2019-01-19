@@ -6,6 +6,9 @@ from xp_yp_ut1_utc import Data
 from ra_dec_2_alt_az import *
 import traceback
 from conversions import *
+from threading import Thread
+import time
+from parts import *
 
 class Frame(wx.Frame):
 
@@ -25,32 +28,32 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.calculate, self.btn)
 
         #current alt
-        self.txt5 = wx.TextCtrl(self.panel, -1)
-        self.label5 = wx.StaticText(self.panel, label="Current Altitude")
+        self.curr_alt = wx.TextCtrl(self.panel, -1)
+        self.cur_alt_lab = wx.StaticText(self.panel, label="Current Altitude")
 
         #current az
-        self.txt6 = wx.TextCtrl(self.panel, -1)
-        self.label6 = wx.StaticText(self.panel, label="Current Azimuth")
+        self.curr_az = wx.TextCtrl(self.panel, -1)
+        self.cur_az_lab = wx.StaticText(self.panel, label="Current Azimuth")
         
         #input ra
-        self.txt1 = wx.TextCtrl(self.panel, -1)
-        self.label1 = wx.StaticText(self.panel, label="Target Right Ascension")
-        self.txt1.SetValue("0")
+        self.in_ra = wx.TextCtrl(self.panel, -1)
+        self.ra_lab = wx.StaticText(self.panel, label="Target Right Ascension")
+        self.in_ra.SetValue("0")
 
         #input dec
-        self.txt2 = wx.TextCtrl(self.panel, -1)
-        self.label2 = wx.StaticText(self.panel, label="Target Declination")
-        self.txt2.SetValue("0")
+        self.in_dec = wx.TextCtrl(self.panel, -1)
+        self.dec_lab = wx.StaticText(self.panel, label="Target Declination")
+        self.in_dec.SetValue("0")
         
         #creating altitude
-        self.txt3 = wx.TextCtrl(self.panel, -1)
-        self.label3 = wx.StaticText(self.panel, label="Target Altitude")
-        self.txt3.SetValue("0")
+        self.in_alt = wx.TextCtrl(self.panel, -1)
+        self.alt_lab = wx.StaticText(self.panel, label="Target Altitude")
+        self.in_alt.SetValue("0")
         
         #creating azimuth
-        self.txt4 = wx.TextCtrl(self.panel, -1)
-        self.label4 = wx.StaticText(self.panel, label="Target Azimuth")
-        self.txt4.SetValue("0")
+        self.in_az = wx.TextCtrl(self.panel, -1)
+        self.az_lab = wx.StaticText(self.panel, label="Target Azimuth")
+        self.in_az.SetValue("0")
 
         #creating error box
         self.error = wx.TextCtrl(self.panel, -1, style = wx.TE_CHARWRAP)
@@ -94,22 +97,22 @@ class Frame(wx.Frame):
         right_sizer.Add(self.decd)
         
         #left sizer
-        left_sizer.Add(self.label1)
-        left_sizer.Add(self.txt1)
-        left_sizer.Add(self.label2)
-        left_sizer.Add(self.txt2)
+        left_sizer.Add(self.ra_lab)
+        left_sizer.Add(self.in_ra)
+        left_sizer.Add(self.dec_lab)
+        left_sizer.Add(self.in_dec)
         left_sizer.Add(self.btn)
-        left_sizer.Add(self.label3)
-        left_sizer.Add(self.txt3)
-        left_sizer.Add(self.label4)
-        left_sizer.Add(self.txt4)
+        left_sizer.Add(self.alt_lab)
+        left_sizer.Add(self.in_alt)
+        left_sizer.Add(self.az_lab)
+        left_sizer.Add(self.in_az)
         left_sizer.Add(self.btn2)
 
         #mid sizer
-        mid_sizer.Add(self.label5)
-        mid_sizer.Add(self.txt5)
-        mid_sizer.Add(self.label6)
-        mid_sizer.Add(self.txt6)
+        mid_sizer.Add(self.cur_alt_lab)
+        mid_sizer.Add(self.curr_alt)
+        mid_sizer.Add(self.cur_az_lab)
+        mid_sizer.Add(self.curr_az)
         
         #master sizer
         master_sizer.Add(self.err_label, border=20, flag=wx.LEFT|wx.RIGHT|wx.EXPAND)
@@ -138,11 +141,11 @@ class Frame(wx.Frame):
         try:
             
             calc = Ra_Dec()
-            alt, az = calc.calculate(float(self.txt1.GetValue()), float(self.txt2.GetValue()))
+            alt, az = calc.calculate(float(self.in_ra.GetValue()), float(self.in_dec.GetValue()))
             alt_str = str(alt)
             az_str = str(az)
-            self.txt3.SetValue(alt_str)
-            self.txt4.SetValue(az_str)
+            self.in_alt.SetValue(alt_str)
+            self.in_az.SetValue(az_str)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exc().splitlines()
@@ -175,9 +178,29 @@ class Frame(wx.Frame):
     def slew(self, e):
         print("This function needs to be written")
 
+    def get_cur_pos(self, e):
+        holder = encoder_get()
+        self.cur_az.SetValue(holder[1])
+        self.cur_alt.SetValue(holder[0])
+                             
+alt_encoder = Encoder(0 , 2, "alt")
+az_encoder = Encoder(1, 3, "az")
+
+    
+
+def encoder_get():
+    cur_alt = alt_encoder.get_degrees()
+    cur_az = az_encoder.get_degrees()
+    return cur_alt, cur_az
+    
+
+            
+
 if __name__ == "__main__":
     app = wx.App()
     frame = Frame(None, "Radio Telescope GUI")
+    thread = Thread(target = encoder_get)
+    thread.start()
     app.MainLoop()
 
     

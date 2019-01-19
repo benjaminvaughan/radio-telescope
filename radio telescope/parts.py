@@ -2,9 +2,9 @@ import math
 import pigpio
 import time
 
-class Encoder(a_pin, b_pin, encoder_id):
+class Encoder():
 
-    def __init__(self):
+    def __init__(self, a_pin, b_pin, encoder_id, pi = None):
         if pi is None:
             pi = pigpio.pi()
 
