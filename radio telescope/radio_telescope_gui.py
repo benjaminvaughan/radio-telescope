@@ -8,13 +8,42 @@ import traceback
 from conversions import *
 from threading import Thread
 import time
-from parts import *
+#from parts import *
 
 class Frame(wx.Frame):
 
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size = (600, 600))
         self.panel = wx.Panel(self)
+
+        #menu bar
+        menubar = wx.MenuBar()
+        mode = wx.Menu()
+        auto_mode = wx.MenuItem(mode)
+        refrac_mode = wx.MenuItem(mode)
+        menubar.Append(mode, "mode")
+        self.Bind(wx.EVT_MENU, self.init_auto_mode(), auto_mode)
+        self.Bind(wx.EVT_MENU, self.init_refrac_mode(), refrac_mode)
+        self.SetMenuBar(menubar)
+
+
+    def init_refrac_mode(self):
+        master_sizer = wx.BoxSizer(wx.VERTICAL)
+        top_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        left_sizer = wx.BoxSizer(wx.VERTICAL)
+        mid_sizer = wx.BoxSizer(wx.VERTICAL)
+        right_sizer = wx.BoxSizer(wx.VERTICAL)
+        master_sizer.Add(top_sizer, border=10, flag=wx.ALL|wx.EXPAND)
+        top_sizer.Add(left_sizer, border=10, flag=wx.ALL|wx.EXPAND)
+        top_sizer.Add(mid_sizer, border=10, flag=wx.ALL|wx.EXPAND)
+        top_sizer.Add(right_sizer, border=10, flag=wx.ALL|wx.EXPAND)
+        
+
+
+    def init_auto_mode(self):
+        #Event timer
+        self.get_degree_timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.get_cur_pos)
 
         #close button
         self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
@@ -120,6 +149,7 @@ class Frame(wx.Frame):
         
         self.panel.SetSizer(master_sizer)
         self.Show()
+        self.get_degree_timer.Start(100)
 
     def convert_ra(self, e):
         conversions = Conversions()
@@ -180,13 +210,9 @@ class Frame(wx.Frame):
 
     def get_cur_pos(self, e):
         holder = encoder_get()
-        self.cur_az.SetValue(holder[1])
-        self.cur_alt.SetValue(holder[0])
+        self.curr_az.SetValue(str(holder[1]))
+        self.curr_alt.SetValue(str(holder[0]))
                              
-alt_encoder = Encoder(0 , 2, "alt")
-az_encoder = Encoder(1, 3, "az")
-
-    
 
 def encoder_get():
     cur_alt = alt_encoder.get_degrees()
