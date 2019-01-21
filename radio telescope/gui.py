@@ -236,7 +236,7 @@ class Frame(wx.Frame):
         self.curr_alt.SetValue(str(holder[0]))
                              
 alt_encoder = Encoder(27 , 17, "alt")
-az_encoder = Encoder(24, 23, "az")
+az_encoder = Encoder(18, 22, "az")
 
 
 def encoder_get():
