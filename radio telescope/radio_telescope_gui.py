@@ -19,6 +19,28 @@ class Frame(wx.Frame):
         #close button
         self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
 
+
+        #menu bar
+        menubar = wx.MenuBar()
+        mode = wx.Menu()
+        auto_mode = wx.MenuItem(mode)
+        refrac_mode = wx.MenuItem(mode)
+        menubar.Append(mode, "mode")
+        self.Bind(wx.EVT_MENU, self.init_auto_mode(), auto_mode)
+        self.Bind(wx.EVT_MENU, self.init_refrac_mode(), refrac_mode)
+        self.SetMenuBar(menubar)
+
+
+    def init_refrac_mode(self):
+        print("this function needs to be written")
+
+    def init_auto_mode(self):
+        
+        #timer
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.get_cur_pos, self.timer)       
+        self.timer.Start(50)
+ 
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
         self.Bind(wx.EVT_BUTTON, self.slew, self.btn2)
@@ -180,11 +202,11 @@ class Frame(wx.Frame):
 
     def get_cur_pos(self, e):
         holder = encoder_get()
-        self.cur_az.SetValue(holder[1])
-        self.cur_alt.SetValue(holder[0])
+        self.curr_az.SetValue(str(holder[1]))
+        self.curr_alt.SetValue(str(holder[0]))
                              
-alt_encoder = Encoder(0 , 2, "alt")
-az_encoder = Encoder(1, 3, "az")
+alt_encoder = Encoder(27 , 17, "alt")
+az_encoder = Encoder(24, 23, "az")
 
     
 
@@ -198,6 +220,7 @@ def encoder_get():
 
 if __name__ == "__main__":
     app = wx.App()
+    alt_encoder.run_encoder()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()

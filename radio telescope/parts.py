@@ -32,7 +32,6 @@ class Encoder():
             self.degrees = self.position * self.ppr
 
     def get_degrees(self):
-        print(self.degrees)
         return float(self.degrees)
 
     def run_encoder(self):
