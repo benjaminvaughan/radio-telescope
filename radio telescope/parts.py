@@ -81,7 +81,7 @@ class Motor():
         for i in range(3):
             self.pi.write(self.mode[i], self.resolution["Half"][i])
 
-    def full_Step(self):
+    def full_step(self):
         for i in range(3):
             self.pi.write(self.mode[i], self.resolution["Full"][i])
 
@@ -106,7 +106,7 @@ class Motor():
             self.set_frequency_dutycycle(128, 1000)
         elif speed == 7:
             self.full_step()
-            self.set_frequency_dutycycle(128, 500)
+            self.set_frequency_dutycycle(128, 2000)
         else:
             print("Haha")
 
@@ -125,8 +125,14 @@ if __name__ == "__main__":
     alt_encoder = Encoder(27, 17, "alt")
     alt_encoder.run_encoder()
     prev_degree = None
+    """
     while 1:
         if prev_degree != alt_encoder.degrees:
             alt_encoder.get_degrees()
             prev_degree1 = alt_encoder.degrees
             time.sleep(0.1)       
+    """
+    alt_motor = Motor(23, 24, 21, 20, 16)
+    alt_motor.set_direction(1)
+    alt_motor.set_speed(7)
+

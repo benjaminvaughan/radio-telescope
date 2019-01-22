@@ -8,7 +8,7 @@ import traceback
 from conversions import *
 from threading import Thread
 import time
-#from parts import *
+from parts import *
 
 class Frame(wx.Frame):
 
@@ -42,7 +42,6 @@ class Frame(wx.Frame):
 
     def init_auto_mode(self):
         #Event timer
-        self.get_degree_timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_cur_pos)
 
         #close button
@@ -171,7 +170,6 @@ class Frame(wx.Frame):
         
         self.panel.SetSizer(master_sizer)
         self.Show()
-        self.get_degree_timer.Start(100)
 
     def convert_ra(self, e):
         conversions = Conversions()
@@ -236,7 +234,7 @@ class Frame(wx.Frame):
         self.curr_alt.SetValue(str(holder[0]))
                              
 alt_encoder = Encoder(27 , 17, "alt")
-az_encoder = Encoder(18, 22, "az")
+az_encoder = Encoder(22, 18, "az")
 
 
 def encoder_get():
@@ -250,6 +248,7 @@ def encoder_get():
 if __name__ == "__main__":
     app = wx.App()
     alt_encoder.run_encoder()
+    az_encoder.run_encoder()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()
