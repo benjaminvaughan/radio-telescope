@@ -131,13 +131,15 @@ class Frame(wx.Frame):
         self.decd = wx.TextCtrl(self.panel, -1, style = wx.TE_READONLY)
 
         #creating difference printout
+        width = 200
         self.diff_label = wx.StaticText(self.panel, label = "Difference in current and target positions")
+        self.diff_label.Wrap(width)
         self.diff_az_label = wx.StaticText(self.panel, label = "Altitude")
         self.diff_alt_label = wx.StaticText(self.panel, label = "Azimuth")
 
 	self.diff_az = wx.TextCtrl(self.panel, -1)
         self.diff_alt = wx.TextCtrl(self.panel, -1)
-
+	
 
        
         #sizers
