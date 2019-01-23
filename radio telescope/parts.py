@@ -106,7 +106,7 @@ class Motor():
             self.set_frequency_dutycycle(128, 1000)
         elif speed == 7:
             self.full_step()
-            self.set_frequency_dutycycle(255, 4000)
+            self.set_frequency_dutycycle(128, 4000)
         else:
             print("Haha")
 
@@ -132,6 +132,8 @@ if __name__ == "__main__":
             prev_degree1 = alt_encoder.degrees
             time.sleep(0.1)       
     """
-    alt_motor = Motor(23, 24, 13, 19, 26)
-    alt_motor.set_direction(0)
+    alt_motor = Motor(24, 23, 13, 19, 26)
+    alt_motor.set_direction(1)
     alt_motor.set_speed(7)
+    time.sleep(60)
+    alt_motor.stop_motor()
