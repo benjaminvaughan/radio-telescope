@@ -230,8 +230,8 @@ class Frame(wx.Frame):
         tar_az  = float(self.in_az.GetValue())
         alt_d = cur_alt - tar_alt
         az_d = cur_az - tar_az
-        self.diff_alt.SetValue(str(alt_d))
-        self.diff_az.SetValue(str(az_d))
+        self.diff_alt.SetValue(str(az_d))
+        self.diff_az.SetValue(str(alt_d))
 
     def block_non_numbers(event):
         key_code = event.GetKeyCode()
