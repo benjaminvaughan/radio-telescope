@@ -46,7 +46,7 @@ class Encoder():
         self.pi.callback(self.b_pin, 1, self.call_back_b)
 
 class Motor():
-    def __init__(self, d_pin, s_pin, m1, m2, m3, pi = None):
+    def __init__(self, d_pin, s_pin, m1, m2, m3, slp_pin, pi = None):
         if pi is None:
             pi = pigpio.pi()
         self.pi = pi
@@ -55,6 +55,8 @@ class Motor():
         self.m1 = m1
         self.m2 = m2
         self.m3 = m3
+        self.slp_pin = slp_pin
+        pi.set_mode(slp_pin, pigpio.OUTPUT)
         pi.set_mode(d_pin, pigpio.OUTPUT)
         pi.set_mode(s_pin, pigpio.OUTPUT)
         self.mode = (m1, m2, m3)
@@ -63,7 +65,7 @@ class Motor():
                            "1/4"  : (0,1,0),
                            "1/8"  : (1,1,0),
                            "1/16" : (0,0,1),
-                           "1/32" : (1,0,1)}
+                           "1/32" : (1,1,1)}
     def a32_msteps(self):
         for i in range(3):
             self.pi.write(self.mode[i], self.resolution["1/32"][i])
@@ -88,28 +90,37 @@ class Motor():
         for i in range(3):
             self.pi.write(self.mode[i], self.resolution["Full"][i])
 
+    def start_motor(self):
+        self.pi.write(self.slp_pin, 1)
+
     def set_speed(self, speed):
         if speed == 0:
             self.stop_motor()
         elif speed == 1:
             self.a32_msteps()
-            self.set_frequency_dutycycle(128, 400)
+            self.set_frequency_dutycycle(128, 800)
         elif speed == 2:
             self.a16_msteps()
-            self.set_frequency_dutycycle(128, 500)
+            self.set_frequency_dutycycle(128, 800)
         elif speed == 3:
             self.a8_msteps()
-            self.set_frequency_dutycycle(128, 600)
+            self.set_frequency_dutycycle(128, 800)
         elif speed == 4:
             self.a4_msteps()
-            self.set_frequency_dutycycle(128, 700)
+            self.set_frequency_dutycycle(128, 800)
         elif speed == 5:
             self.half_step()
             self.set_frequency_dutycycle(128, 800)
         elif speed == 6:
-            self.set_frequency_dutycycle(128, 500)
-        elif speed == 7:
+            self.full_step()
             self.set_frequency_dutycycle(128, 800)
+        elif speed == 7:
+            self.full_step()
+            self.set_frequency_dutycycle(128, 800)
+        elif speed == 8:
+            self.start_motor()
+        elif speed == 9:
+            self.one_step()
         else:
             print("Haha")
 
@@ -120,9 +131,15 @@ class Motor():
     def stop_motor(self):
         self.pi.set_PWM_dutycycle(self.s_pin, 0)
         self.pi.set_PWM_frequency(self.s_pin, 0)
+        self.pi.write(self.slp_pin, 0)
 
     def set_direction(self, direction):
         self.pi.write(self.d_pin, direction)
+
+    def one_step(self):
+        self.pi.write(self.s_pin, 1)
+        time.sleep(0.0206)
+        self.pi.write(self.s_pin, 0)
 
 if __name__ == "__main__":
     speed  = 7
@@ -139,7 +156,7 @@ if __name__ == "__main__":
             prev_degree1 = alt_encoder.degrees
             time.sleep(0.1)       
     """
-    alt_motor = Motor(20, 21, 13, 19, 26)
+    alt_motor = Motor(20, 21, 13, 19, 26, 16)
     alt_motor.set_direction(1)
     alt_motor.set_speed(speed)
          

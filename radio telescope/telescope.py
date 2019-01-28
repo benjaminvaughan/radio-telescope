@@ -2,12 +2,14 @@ from parts import *
 
 class Telescope():
 
-    def __init__(self):
+    def __init__(self, pi = None):
 
+	if pi is None:
+            pi = pigpio.pi()
         self.alt_encoder = Encoder(27, 17, "alt")
         self.az_encoder  = Encoder(18, 22, "az")
-        self.alt_motor   = Motor(23, 24, 26, 19, 13)
-        self.az_motor    = Motor(19, 26, 5, 6, 13)
+        self.az_motor    = Motor(19, 26, 5, 6, 13, 25)
+        self.alt_motor   = Motor(20, 21, 13, 19, 26, 16)
         self.alt_encoder.run_encoder()
         self.az_encoder.run_encoder()
 
@@ -32,18 +34,24 @@ class Telescope():
     def alt_update(self, tar_alt):
         alt_err = self.alt_dir(tar_alt)
         alt_err = abs(alt_err)
-        if alt_err >= 0:
-            self.alt_motor.stop_motor()
-        elif alt_err >= 35:
-            self.alt_motor.set_speed(1)
+
+        if alt_err >= 240:
+            self.alt_motor.set_speed(7) 
+        elif alt_err >= 200:
+            self.alt_motor.set_speed(6)
+        elif alt_err >= 140:
+            self.alt_motor.set_speed(5)
+        elif alt_err >= 60:
+            self.alt_motor.set_speed(4)
         elif alt_err >= 50:
+	    self.alt_motor.set_speed(3)
+        elif alt_err >= 30:
+	    self.alt_motor.set_speed(2)
+        elif alt_err >= 1:
             self.alt_motor.set_speed(1)
-        elif alt_err >= 80:
-            self.alt_motor.set_speed(1)
-        elif alt_err >= 160:
-            self.alt_motor.set_speed(1)
-        elif alt_err >= 240:
-            self.alt_motor.set_speed(1)
+        elif alt_err >= 0:
+            self.alt_motor.stop_motor()
+            print("target reached stopping motor")
 
     def az_update(self, tar_az):
         az_err = self.az_dir(tar_az)
@@ -62,18 +70,17 @@ class Telescope():
             self.az_motor.set_speed(1)
 
     def slew(self, tar_az, tar_alt):
+        self.alt_motor.set_speed(8) #turn the motor on
         while 1:
-
-       # cur_az = self.az_encoder.get_degrees()
-       # print(cur_az)
             cur_alt = self.alt_encoder.get_degrees()
-            print(cur_alt)
+            print("current altitude", cur_alt, "target altitude", tar_alt)
+            self.alt_dir(tar_alt)
        # if cur_az != tar_az:
          #   self.az_update(tar_az)
             if cur_alt != tar_alt:
-                 self.alt_update
+                 self.alt_update(tar_alt)
     
 if __name__ == "__main__":
     telescope = Telescope()
-    telescope.slew(280, 100)
+    telescope.slew(280, 180)
     
