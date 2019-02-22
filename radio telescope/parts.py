@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+
 import math
 import pigpio
 import time
+import sys
 
 class Encoder():
 
@@ -69,7 +72,7 @@ class Motor():
         for i in range(3):
             self.pi.write(self.mode[i], self.resolution["1/16"][i])
 
-    def a8m_steps(self):
+    def a8_msteps(self):
         for i in range(3):
             self.pi.write(self.mode[i], self.resolution["1/8" ][i])
 
@@ -86,27 +89,27 @@ class Motor():
             self.pi.write(self.mode[i], self.resolution["Full"][i])
 
     def set_speed(self, speed):
-        if speed == 1:
+        if speed == 0:
+            self.stop_motor()
+        elif speed == 1:
             self.a32_msteps()
-            self.set_frequency_dutycycle(128, 1000)
+            self.set_frequency_dutycycle(128, 400)
         elif speed == 2:
-            self.a32_msteps()
-            self.set_frequency_dutycycle(128, 2000)
+            self.a16_msteps()
+            self.set_frequency_dutycycle(128, 500)
         elif speed == 3:
-            self.a16m_steps()
-            self.set_frequency_dutycycle(128, 1000)
-        elif speed == 4:
             self.a8_msteps()
-            self.set_frequency_dutycycle(128, 1000)
-        elif speed == 5:
+            self.set_frequency_dutycycle(128, 600)
+        elif speed == 4:
             self.a4_msteps()
-            self.set_frequency_dutycycle(128, 1000)
-        elif speed == 6:
+            self.set_frequency_dutycycle(128, 700)
+        elif speed == 5:
             self.half_step()
-            self.set_frequency_dutycycle(128, 1000)
+            self.set_frequency_dutycycle(128, 800)
+        elif speed == 6:
+            self.set_frequency_dutycycle(128, 500)
         elif speed == 7:
-            self.full_step()
-            self.set_frequency_dutycycle(128, 4000)
+            self.set_frequency_dutycycle(128, 800)
         else:
             print("Haha")
 
@@ -116,11 +119,15 @@ class Motor():
 
     def stop_motor(self):
         self.pi.set_PWM_dutycycle(self.s_pin, 0)
+        self.pi.set_PWM_frequency(self.s_pin, 0)
 
     def set_direction(self, direction):
         self.pi.write(self.d_pin, direction)
 
 if __name__ == "__main__":
+    speed  = 7
+    if len(sys.argv) > 1:
+       speed = int(sys.argv[1])
     pi = pigpio.pi()
 #    alt_encoder = Encoder(27, 17, "alt")
 #    alt_encoder.run_encoder()
@@ -132,8 +139,7 @@ if __name__ == "__main__":
             prev_degree1 = alt_encoder.degrees
             time.sleep(0.1)       
     """
-    alt_motor = Motor(24, 23, 13, 19, 26)
+    alt_motor = Motor(20, 21, 13, 19, 26)
     alt_motor.set_direction(1)
-    alt_motor.set_speed(7)
-    time.sleep(60)
-    alt_motor.stop_motor()
+    alt_motor.set_speed(speed)
+         
