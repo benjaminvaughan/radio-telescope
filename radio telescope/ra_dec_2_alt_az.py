@@ -107,15 +107,16 @@ class Ra_Dec():
         cosh = (m.sin(alt) - m.sin(dec)*m.sin(lat)) / (m.cos(dec)*m.cos(lat))
         h = m.acos(cosh)
 
+        if m.sin(az) > 0.0:
+            h = 2*m.pi - h
         lha = self.rad_2_degree(h)
         lmst = self.lmst()
         if lmst < 0:
             lmst += 24
         lmst *= 15
         ra = lmst - lha
+        
         dec = self.rad_2_degree(dec)
-        if az < 180:
-            ra = 180 - ra
         return ra, dec
     
     def degree_2_rad(self, degrees):
@@ -125,7 +126,7 @@ class Ra_Dec():
     def rad_2_degree(self, radians):
         degrees = radians * 180 / m.pi
         return degrees
-        
+
         
     
 if __name__ == "__main__":
