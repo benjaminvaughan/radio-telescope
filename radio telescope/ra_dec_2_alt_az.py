@@ -94,6 +94,12 @@ class Ra_Dec():
         az  = self.degree_2_rad(az )
         lat = self.degree_2_rad(lat)
 
+        revs = az // 360
+        c = revs * 360
+        az -= c
+
+        
+
         sindec = m.sin(lat)*m.sin(alt) + m.cos(lat)*m.cos(alt)*m.cos(az)
         dec = m.asin(sindec)
         sinh = -1*m.sin(az)*m.cos(alt)/m.cos(dec)
@@ -108,6 +114,8 @@ class Ra_Dec():
         lmst *= 15
         ra = lmst - lha
         dec = self.rad_2_degree(dec)
+        if az < 180:
+            ra = 180 - ra
         return ra, dec
     
     def degree_2_rad(self, degrees):

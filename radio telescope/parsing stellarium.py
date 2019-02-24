@@ -28,8 +28,8 @@ class Stellarium():
         self.conn, self.addr = self.sock.accept()
         print("connected to", self.addr)
         chunks = []
-        tele_dec = 6
-        tele_ra = 4
+        az_tele = 0
+        alt_tele = 0
         inputs = [self.conn]
         outputs = []
         while 1:
@@ -69,16 +69,20 @@ class Stellarium():
                         alt, az, error = self.ra_dec.calculate(ra, dec)
                         target = [alt, az]
                             
-                        az_tele = 0
-                        alt_tele = 0
+
                         format = "3iIii"
                         length = struct.calcsize(format)
                         az_err = az - az_tele
                         alt_err = alt - alt_tele
                         while az_err > 1 or az_err < -1:
                             az_err = az - az_tele
-                            az_tele += 1
+                            if az_err < 0:
+                                az_tele -= 1
+                            elif az_err > 0:
+                                az_tele += 1    
                             ra_actual, dec_actual = self.ra_dec.ra_dec(az_tele, alt_tele)
+                            if ra_actual < 0:
+                                ra_actual += 360
                             if dec_actual >= 180:
                                 dec_actual -= 360
                             ra_encoded = ra_actual / 90 * 0x40000000
@@ -93,9 +97,14 @@ class Stellarium():
                             self.conn.sendall(resp)
                             time.sleep(.1)
                         while alt_err < -1 or alt_err > 1:
-                            alt_tele += 1
                             alt_err = alt - alt_tele
+                            if alt_err < 0:
+                                alt_tele -= 1
+                            elif alt_err > 0:
+                                alt_tele += 1
                             ra_actual, dec_actual = self.ra_dec.ra_dec(az_tele, alt_tele)
+                            if ra_actual < 0:
+                                ra_actual += 360
                             if dec_actual >= 180:
                                 dec_actual -= 360
                             ra_encoded = ra_actual / 90 * 0x40000000
@@ -109,23 +118,7 @@ class Stellarium():
                                                0)
                             self.conn.sendall(resp)
                             time.sleep(.1)
-            """
-            alt, az, error = self.ra_dec.calculate(ra, dec)
-            target = [alt, az]
-            print('target is:', target)
-            while 1:
-                converted_dec = tele_dec * 0x80000000 / math.pi
-                print(converted_dec)
-                converted_ra = tele_ra * 0x80000000 / math.pi
-                print(converted_ra)
-                reply = struct.pack("3iIii", 24, 0, time.time(), converted_ra ,converted_dec, 0)
-                self.conn.send(reply)
-                tele_dec += .1
-                tele_ra += .1
-                print('telescope coordinates:', tele_ra, tele_dec)
-            """
-            
-            
+                      
 
 if __name__ == '__main__':
     stellarium = Stellarium()
