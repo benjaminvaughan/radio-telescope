@@ -21,6 +21,9 @@ class Encoder():
         self.a_state = None
         self.position = 0
 
+    def set_encoder(self, value):
+        self.degrees = value
+        
     def call_back_a(self, pin, level, tick):
         """
         Purpose: The purpose of this function is to provide a callback to be called within pigpios callback function. It sets the value of a_state to that of the level produced by the encoder at the time of the callback

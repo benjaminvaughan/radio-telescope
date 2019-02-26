@@ -103,6 +103,10 @@ class Frame(wx.Frame):
         self.btn = wx.Button(self.panel, -1, "Calculate")
         self.Bind(wx.EVT_BUTTON, self.calculate, self.btn)
 
+        #callibrate button
+        self.calibrate_btn = wx.Button(self.panel, -1, "Calibrate")
+        self.Bind(wx.EVT_BUTTON, self.calibrate, self.calibrate_btn)
+
         #current alt
         self.curr_alt = wx.TextCtrl(self.panel, -1)
         self.cur_alt_lab = wx.StaticText(self.panel, label="Current Altitude")
@@ -188,6 +192,7 @@ class Frame(wx.Frame):
         right_sizer.Add(self.decc)
         right_sizer.Add(self.dec_convert_btn)
         right_sizer.Add(self.decd)
+        right_sizer.Add(self.calibrate_btn)
         
         #left sizer
         left_sizer.Add(self.ra_lab)
@@ -311,6 +316,10 @@ class Frame(wx.Frame):
         self.in_alt.SetValue(alt)
         self.in_az.SetValue(az)
         self.error.SetValue(error)
+
+    def calibrate(self, e):
+        self.azimuth_encoder.set_encoder(curr_az.GetValue())
+        self.altitudel_encoder.set_encoder(curr_alt.GetValue())
         
 
         
