@@ -10,6 +10,7 @@ from threading import Thread
 import time
 from parts import *
 from telescope import *
+from stellarium import *
 
 class Frame(wx.Frame):
 
@@ -17,6 +18,10 @@ class Frame(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, size = (600, 600))
         self.panel = wx.Panel(self)
 
+        #initializing class
+        self.converter = Ra_Dec()
+        self.stellarium = Stellarium()
+        
         #menu bar
         menubar = wx.MenuBar()
         mode = wx.Menu()
@@ -75,6 +80,21 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.calc_diff, self.timer2)
         self.timer2.Start(50)
 
+        #hor2equ timer
+        self.hor2eq_timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.cur_ra_dec(), self.hor2eq_timer)
+        self.hor2eq_timer.Start(50)
+
+        #stellarium timer
+        self.sttimer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.send_data(), self.sttimer)
+        self.sttimer.Start(50)
+
+        #stellarium timer2
+        self.sttimer2 = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.get_data(), self.sttimer2)
+        self.sttimer2.Start(50)
+
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
         self.Bind(wx.EVT_BUTTON, self.slew, self.btn2)
@@ -110,6 +130,12 @@ class Frame(wx.Frame):
         self.in_az = wx.TextCtrl(self.panel, -1)
         self.az_lab = wx.StaticText(self.panel, label="Target Azimuth")
         self.in_az.SetValue("0")
+
+        #Creating Right Ascension and Declination table
+        self.tele_ra = wx.TextCtrl(self.panel, -1)
+        self.tele_ra_lab = wx.StaticText(self.panel, label="Current Right Ascension")
+        self.tele_de = wx.TextCtrl(self.panel, -1)
+        self.tele_de_lab = wx.StaticText(self.panel, label="Current Declination")
 
         #creating error box
         self.error = wx.TextCtrl(self.panel, -1, style = wx.TE_CHARWRAP)
@@ -185,6 +211,10 @@ class Frame(wx.Frame):
         mid_sizer.Add(self.diff_az)
         mid_sizer.Add(self.diff_alt_label)
         mid_sizer.Add(self.diff_alt)
+        mid_sizer.Add(self.tele_ra_lab)
+        mid_sizer.Add(self.tele_ra)
+        mid_sizer.Add(self.tele_de_lab)
+        mid_sizer.Add(self.tele_de)
         
         #master sizer
         master_sizer.Add(self.err_label, border=20, flag=wx.LEFT|wx.RIGHT|wx.EXPAND)
@@ -264,6 +294,27 @@ class Frame(wx.Frame):
         holder = encoder_get()
         self.curr_az.SetValue(str(holder[1]))
         self.curr_alt.SetValue(str(holder[0]))
+
+    def cur_ra_dec(self, e):
+        ra, dec = self.converter.ra_dec(self.curr_az.GetValue(),
+                                   self.curr_alt.GetValue())
+        self.tele_ra.SetValue(str(ra))
+        self.tele_de.SetValue(str(dec))
+
+    def send_data(self, e):
+        error = self.stellarium.send(float(tele_de.GetValue()),
+                                float(tele_ra.GetValue()))
+        self.error.SetValue(error)
+
+    def get_data(self, e):
+        alt, az, error = self.stellarium.receive_coords()
+        self.in_alt.SetValue(alt)
+        self.in_az.SetValue(az)
+        self.error.SetValue(error)
+        
+
+        
+        
                              
 
 def encoder_get():
