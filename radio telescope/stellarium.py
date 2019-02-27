@@ -34,14 +34,18 @@ class Stellarium():
         az - the azimuth of the object
         Original Author: Benjamin Vaughan
         """
-
         inputs = [self.conn]
         outputs = []
-        readable, writable, exceptional = select.select(inputs, outputs, inputs)
+        format = "hhiiiI"
+        length = struct.calcsize(format)
+        print('before select')
+        readable, writable, exceptional = select.select(inputs, outputs, inputs, .1)
+        print('after select')
         for s in readable:
-            data = s.recv[1024]
+            print('after s in readable')
+            data = s.recv(length)
             if len(data) > 0:
-                unpacked = struct.unpack("hhiiiI", data)
+                unpacked = struct.unpack(format, data)
                 ra = float(unpacked[4]) * 90.0 / 0x40000000
                 dec = float(unpacked[5]) * 180 / 0x80000000
 
@@ -61,7 +65,15 @@ class Stellarium():
                     dec -= 180
 
                 alt, az, error = self.ra_dec.calculate(ra, dec)
-                return alt, az, error
+                flag = 1
+                return alt, az, error, flag
+
+            else:
+                alt = 'alt'
+                az = 'az'
+                error = 'none'
+                flag = 0
+                return alt, az, error, flag
 
     def send(self, dec, ra):
         """
@@ -75,7 +87,6 @@ class Stellarium():
         Error - error message ( if there is one )
         Original Author: Benjamin Vaughan
         """
-        self.conn, self.addr = self.sock.accept()
         format = "3iIii"
         length = struct.calcsize(format)
         try:
@@ -95,7 +106,15 @@ class Stellarium():
                            int(encoded_ra),
                            int(encoded_dec),
                            0)
-        self.conn.sendall(resp)
+        self.conn.send(resp)
         error = 'No error to report'
         return error
-        
+
+    def accept(self):
+        open_sockets = []
+        listening_socket = [self.sock]
+        rlist, wlist, xlist = select.select(listening_socket+open_sockets, [], [])
+        for i in rlist:
+            if i is self.sock:
+                self.conn, self.addr = self.sock.accept()
+                open_sockets.append(self.conn)

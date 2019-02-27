@@ -21,6 +21,7 @@ class Frame(wx.Frame):
         #initializing class
         self.converter = Ra_Dec()
         self.stellarium = Stellarium()
+        self.stellarium.accept()
         
         #menu bar
         menubar = wx.MenuBar()
@@ -73,12 +74,12 @@ class Frame(wx.Frame):
         #timer
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_cur_pos, self.timer)       
-        #self.timer.Start(100)
+        self.timer.Start(100)
  
         #timer 2
         self.timer2 = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.calc_diff, self.timer2)
-        #self.timer2.Start(100)
+        self.timer2.Start(100)
 
         #hor2equ timer
         self.hor2eq_timer = wx.Timer(self)
@@ -93,7 +94,7 @@ class Frame(wx.Frame):
         #stellarium timer2
         self.sttimer2 = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_data, self.sttimer2)
-        #self.sttimer2.Start(100)
+        self.sttimer2.Start(100)
 
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
@@ -314,19 +315,16 @@ class Frame(wx.Frame):
         self.error.SetValue(error)
 
     def get_data(self, e):
-        alt, az, error = self.stellarium.receive_coords()
-        self.in_alt.SetValue(alt)
-        self.in_az.SetValue(az)
-        self.error.SetValue(error)
+        alt, az, error, flag = self.stellarium.receive_coords()
+        if flag:
+            self.in_alt.SetValue(alt)
+            self.in_az.SetValue(az)
+            self.error.SetValue(error)
 
     def calibrate(self, e):
         self.azimuth_encoder.set_encoder(float(curr_az.GetValue()))
         self.altitudel_encoder.set_encoder(float(curr_alt.GetValue()))
-        
-
-        
-        
-                             
+                                     
 
 def encoder_get():
     cur_alt = telescope.alt_encoder.get_degrees()

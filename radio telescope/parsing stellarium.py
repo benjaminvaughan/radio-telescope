@@ -86,19 +86,19 @@ class Stellarium():
                             else:
                                 if ra_actual < 0:
                                     ra_actual += 360
-                                    if dec_actual >= 180:
-                                        dec_actual -= 360
-                                    ra_encoded = ra_actual / 90 * 0x40000000
-                                    dec_encoded = dec_actual / 180 * 0x80000000
-                                    resp = struct.pack(format,
-                                                       length,
-                                                       0,
-                                                       int(time.clock()),
-                                                       int(ra_encoded),
-                                                       int(dec_encoded),
-                                                       0)
-                                    self.conn.sendall(resp)
-                                    time.sleep(.1)
+                                if dec_actual >= 180:
+                                    dec_actual -= 360
+                                ra_encoded = ra_actual / 90 * 0x40000000
+                                dec_encoded = dec_actual / 180 * 0x80000000
+                                resp = struct.pack(format,
+                                                   length,
+                                                   0,
+                                                   int(time.clock()),
+                                                   int(ra_encoded),
+                                                   int(dec_encoded),
+                                                   0)
+                                self.conn.sendall(resp)
+                                time.sleep(.1)
                         while alt_err < -1 or alt_err > 1:
                             alt_err = alt - alt_tele
                             if alt_err < 0:
