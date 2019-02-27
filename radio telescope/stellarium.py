@@ -2,7 +2,7 @@
 
 import socket
 import math
-from ra_Dec_2_alt_az import *
+from ra_dec_2_alt_az import *
 import time
 import struct
 import select
@@ -19,8 +19,9 @@ class Stellarium():
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         else:
             self.sock = sock
-        self.sock.bind("", port)
-        self.sock.list(1)
+        self.sock.bind(("", port))
+        self.sock.listen(1)
+
 
     def receive_coords(self):
         """
@@ -33,7 +34,7 @@ class Stellarium():
         az - the azimuth of the object
         Original Author: Benjamin Vaughan
         """
-        conn, addr = self.sock.accept()
+
         inputs = [self.conn]
         outputs = []
         readable, writable, exceptional = select.select(inputs, outputs, inputs)
@@ -72,6 +73,9 @@ class Stellarium():
         dec - the declination of the telescope
         Outputs:
         Error - error message ( if there is one )
+        Original Author: Benjamin Vaughan
+        """
+        self.conn, self.addr = self.sock.accept()
         format = "3iIii"
         length = struct.calcsize(format)
         try:
@@ -92,6 +96,6 @@ class Stellarium():
                            int(encoded_dec),
                            0)
         self.conn.sendall(resp)
-        error = "No error to report"
+        error = 'No error to report'
         return error
         

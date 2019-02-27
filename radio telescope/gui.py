@@ -73,27 +73,27 @@ class Frame(wx.Frame):
         #timer
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_cur_pos, self.timer)       
-        self.timer.Start(50)
+        #self.timer.Start(100)
  
         #timer 2
         self.timer2 = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.calc_diff, self.timer2)
-        self.timer2.Start(50)
+        #self.timer2.Start(100)
 
         #hor2equ timer
         self.hor2eq_timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.cur_ra_dec(), self.hor2eq_timer)
-        self.hor2eq_timer.Start(50)
+        self.Bind(wx.EVT_TIMER, self.cur_ra_dec, self.hor2eq_timer)
+        self.hor2eq_timer.Start(100)
 
         #stellarium timer
         self.sttimer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.send_data(), self.sttimer)
-        self.sttimer.Start(50)
+        self.Bind(wx.EVT_TIMER, self.send_data, self.sttimer)
+        self.sttimer.Start(100)
 
         #stellarium timer2
         self.sttimer2 = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.get_data(), self.sttimer2)
-        self.sttimer2.Start(50)
+        self.Bind(wx.EVT_TIMER, self.get_data, self.sttimer2)
+        #self.sttimer2.Start(100)
 
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
@@ -167,7 +167,8 @@ class Frame(wx.Frame):
         self.diff_az_label = wx.StaticText(self.panel, label = "Altitude")
         self.diff_alt_label = wx.StaticText(self.panel, label = "Azimuth")
 
-	self.diff_az = wx.TextCtrl(self.panel, -1)
+        
+        self.diff_az = wx.TextCtrl(self.panel, -1)
         self.diff_alt = wx.TextCtrl(self.panel, -1)
 	
 
@@ -301,14 +302,15 @@ class Frame(wx.Frame):
         self.curr_alt.SetValue(str(holder[0]))
 
     def cur_ra_dec(self, e):
-        ra, dec = self.converter.ra_dec(self.curr_az.GetValue(),
-                                   self.curr_alt.GetValue())
+        ra, dec = self.converter.ra_dec(float(self.curr_az.GetValue()),
+                                        float(self.curr_alt.GetValue()))
+        print(ra, dec, "debug")
         self.tele_ra.SetValue(str(ra))
         self.tele_de.SetValue(str(dec))
 
     def send_data(self, e):
-        error = self.stellarium.send(float(tele_de.GetValue()),
-                                float(tele_ra.GetValue()))
+        error = self.stellarium.send(float(self.tele_de.GetValue()),
+                                float(self.tele_ra.GetValue()))
         self.error.SetValue(error)
 
     def get_data(self, e):
@@ -318,8 +320,8 @@ class Frame(wx.Frame):
         self.error.SetValue(error)
 
     def calibrate(self, e):
-        self.azimuth_encoder.set_encoder(curr_az.GetValue())
-        self.altitudel_encoder.set_encoder(curr_alt.GetValue())
+        self.azimuth_encoder.set_encoder(float(curr_az.GetValue()))
+        self.altitudel_encoder.set_encoder(float(curr_alt.GetValue()))
         
 
         
@@ -336,7 +338,7 @@ def encoder_get():
 
 if __name__ == "__main__":
     app = wx.App()
-    telescope = Telescope()
+    #telescope = Telescope()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()
