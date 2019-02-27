@@ -74,7 +74,7 @@ class Frame(wx.Frame):
         #timer
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_cur_pos, self.timer)       
-        self.timer.Start(100)
+        #self.timer.Start(100)
  
         #timer 2
         self.timer2 = wx.Timer(self)
@@ -161,6 +161,12 @@ class Frame(wx.Frame):
         self.rad = wx.TextCtrl(self.panel, -1, style = wx.TE_READONLY)
         self.decd = wx.TextCtrl(self.panel, -1, style = wx.TE_READONLY)
 
+        #creating the set ra and dec box
+        self.set_ra = wx.TextCtrl(self.panel, -1)
+        self.set_ra_label = wx.StaticText(self.panel, label="Set Right Ascension")
+        self.set_de = wx.TextCtrl(self.panel, -1)
+        self.set_de_label = wx.StaticText(self.panel, label="Set Declination")
+
         #creating difference printout
         width = 200
         self.diff_label = wx.StaticText(self.panel, label = "Difference in current and target positions")
@@ -194,6 +200,10 @@ class Frame(wx.Frame):
         right_sizer.Add(self.decc)
         right_sizer.Add(self.dec_convert_btn)
         right_sizer.Add(self.decd)
+        right_sizer.Add(self.set_ra_label)
+        right_sizer.Add(self.set_ra)
+        right_sizer.Add(self.set_de_label)
+        right_sizer.Add(self.set_de)
         right_sizer.Add(self.calibrate_btn)
         
         #left sizer
@@ -305,7 +315,6 @@ class Frame(wx.Frame):
     def cur_ra_dec(self, e):
         ra, dec = self.converter.ra_dec(float(self.curr_az.GetValue()),
                                         float(self.curr_alt.GetValue()))
-        print(ra, dec, "debug")
         self.tele_ra.SetValue(str(ra))
         self.tele_de.SetValue(str(dec))
 
@@ -322,8 +331,14 @@ class Frame(wx.Frame):
             self.error.SetValue(error)
 
     def calibrate(self, e):
-        self.azimuth_encoder.set_encoder(float(curr_az.GetValue()))
-        self.altitudel_encoder.set_encoder(float(curr_alt.GetValue()))
+        alt, az, error = self.converter.calculate(float(self.set_ra.GetValue()),
+                                                  float(self.set_de.GetValue()))
+        #telescope.azimuth_encoder.set_encoder(az)
+        #telescope.altitudel_encoder.set_encoder(alt)
+
+        #test code
+        self.curr_alt.SetValue(str(alt))
+        self.curr_az.SetValue(str(az))
                                      
 
 def encoder_get():

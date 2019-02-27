@@ -38,11 +38,8 @@ class Stellarium():
         outputs = []
         format = "hhiiiI"
         length = struct.calcsize(format)
-        print('before select')
         readable, writable, exceptional = select.select(inputs, outputs, inputs, .1)
-        print('after select')
         for s in readable:
-            print('after s in readable')
             data = s.recv(length)
             if len(data) > 0:
                 unpacked = struct.unpack(format, data)
@@ -68,12 +65,12 @@ class Stellarium():
                 flag = 1
                 return alt, az, error, flag
 
-            else:
-                alt = 'alt'
-                az = 'az'
-                error = 'none'
-                flag = 0
-                return alt, az, error, flag
+        else:
+            alt = 'alt'
+            az = 'az'
+            error = 'none'
+            flag = 0
+            return alt, az, error, flag
 
     def send(self, dec, ra):
         """
