@@ -10,6 +10,7 @@ from threading import Thread
 import time
 from parts import *
 from telescope import *
+from stellarium import *
 
 class Frame(wx.Frame):
 
@@ -17,6 +18,11 @@ class Frame(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, size = (600, 600))
         self.panel = wx.Panel(self)
 
+        #initializing class
+        self.converter = Ra_Dec()
+        self.stellarium = Stellarium()
+        self.stellarium.accept()
+        
         #menu bar
         menubar = wx.MenuBar()
         mode = wx.Menu()
@@ -68,12 +74,27 @@ class Frame(wx.Frame):
         #timer
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_cur_pos, self.timer)       
-        self.timer.Start(50)
+        #self.timer.Start(100)
  
         #timer 2
         self.timer2 = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.calc_diff, self.timer2)
-        self.timer2.Start(50)
+        self.timer2.Start(100)
+
+        #hor2equ timer
+        self.hor2eq_timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.cur_ra_dec, self.hor2eq_timer)
+        self.hor2eq_timer.Start(100)
+
+        #stellarium timer
+        self.sttimer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.send_data, self.sttimer)
+        self.sttimer.Start(100)
+
+        #stellarium timer2
+        self.sttimer2 = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.get_data, self.sttimer2)
+        self.sttimer2.Start(100)
 
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
@@ -82,6 +103,10 @@ class Frame(wx.Frame):
         #calculate button
         self.btn = wx.Button(self.panel, -1, "Calculate")
         self.Bind(wx.EVT_BUTTON, self.calculate, self.btn)
+
+        #callibrate button
+        self.calibrate_btn = wx.Button(self.panel, -1, "Calibrate")
+        self.Bind(wx.EVT_BUTTON, self.calibrate, self.calibrate_btn)
 
         #current alt
         self.curr_alt = wx.TextCtrl(self.panel, -1)
@@ -111,6 +136,12 @@ class Frame(wx.Frame):
         self.az_lab = wx.StaticText(self.panel, label="Target Azimuth")
         self.in_az.SetValue("0")
 
+        #Creating Right Ascension and Declination table
+        self.tele_ra = wx.TextCtrl(self.panel, -1)
+        self.tele_ra_lab = wx.StaticText(self.panel, label="Current Right Ascension")
+        self.tele_de = wx.TextCtrl(self.panel, -1)
+        self.tele_de_lab = wx.StaticText(self.panel, label="Current Declination")
+
         #creating error box
         self.error = wx.TextCtrl(self.panel, -1, style = wx.TE_CHARWRAP)
         self.err_label = wx.StaticText(self.panel, label="Error Messages")
@@ -130,6 +161,12 @@ class Frame(wx.Frame):
         self.rad = wx.TextCtrl(self.panel, -1, style = wx.TE_READONLY)
         self.decd = wx.TextCtrl(self.panel, -1, style = wx.TE_READONLY)
 
+        #creating the set ra and dec box
+        self.set_ra = wx.TextCtrl(self.panel, -1)
+        self.set_ra_label = wx.StaticText(self.panel, label="Set Right Ascension")
+        self.set_de = wx.TextCtrl(self.panel, -1)
+        self.set_de_label = wx.StaticText(self.panel, label="Set Declination")
+
         #creating difference printout
         width = 200
         self.diff_label = wx.StaticText(self.panel, label = "Difference in current and target positions")
@@ -137,7 +174,8 @@ class Frame(wx.Frame):
         self.diff_az_label = wx.StaticText(self.panel, label = "Altitude")
         self.diff_alt_label = wx.StaticText(self.panel, label = "Azimuth")
 
-	self.diff_az = wx.TextCtrl(self.panel, -1)
+        
+        self.diff_az = wx.TextCtrl(self.panel, -1)
         self.diff_alt = wx.TextCtrl(self.panel, -1)
 	
 
@@ -162,6 +200,11 @@ class Frame(wx.Frame):
         right_sizer.Add(self.decc)
         right_sizer.Add(self.dec_convert_btn)
         right_sizer.Add(self.decd)
+        right_sizer.Add(self.set_ra_label)
+        right_sizer.Add(self.set_ra)
+        right_sizer.Add(self.set_de_label)
+        right_sizer.Add(self.set_de)
+        right_sizer.Add(self.calibrate_btn)
         
         #left sizer
         left_sizer.Add(self.ra_lab)
@@ -185,6 +228,10 @@ class Frame(wx.Frame):
         mid_sizer.Add(self.diff_az)
         mid_sizer.Add(self.diff_alt_label)
         mid_sizer.Add(self.diff_alt)
+        mid_sizer.Add(self.tele_ra_lab)
+        mid_sizer.Add(self.tele_ra)
+        mid_sizer.Add(self.tele_de_lab)
+        mid_sizer.Add(self.tele_de)
         
         #master sizer
         master_sizer.Add(self.err_label, border=20, flag=wx.LEFT|wx.RIGHT|wx.EXPAND)
@@ -264,7 +311,35 @@ class Frame(wx.Frame):
         holder = encoder_get()
         self.curr_az.SetValue(str(holder[1]))
         self.curr_alt.SetValue(str(holder[0]))
-                             
+
+    def cur_ra_dec(self, e):
+        ra, dec = self.converter.ra_dec(float(self.curr_az.GetValue()),
+                                        float(self.curr_alt.GetValue()))
+        self.tele_ra.SetValue(str(ra))
+        self.tele_de.SetValue(str(dec))
+
+    def send_data(self, e):
+        error = self.stellarium.send(float(self.tele_de.GetValue()),
+                                float(self.tele_ra.GetValue()))
+        self.error.SetValue(error)
+
+    def get_data(self, e):
+        alt, az, error, flag = self.stellarium.receive_coords()
+        if flag:
+            self.in_alt.SetValue(alt)
+            self.in_az.SetValue(az)
+            self.error.SetValue(error)
+
+    def calibrate(self, e):
+        alt, az, error = self.converter.calculate(float(self.set_ra.GetValue()),
+                                                  float(self.set_de.GetValue()))
+        #telescope.azimuth_encoder.set_encoder(az)
+        #telescope.altitudel_encoder.set_encoder(alt)
+
+        #test code
+        self.curr_alt.SetValue(str(alt))
+        self.curr_az.SetValue(str(az))
+                                     
 
 def encoder_get():
     cur_alt = telescope.alt_encoder.get_degrees()
@@ -276,7 +351,7 @@ def encoder_get():
 
 if __name__ == "__main__":
     app = wx.App()
-    telescope = Telescope()
+    #telescope = Telescope()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()
