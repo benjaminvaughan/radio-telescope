@@ -21,7 +21,7 @@ class Frame(wx.Frame):
         #initializing class
         self.converter = Ra_Dec()
         self.stellarium = Stellarium()
-        self.stellarium.accept()
+        #self.stellarium.accept()
         
         #menu bar
         menubar = wx.MenuBar()
@@ -74,7 +74,7 @@ class Frame(wx.Frame):
         #timer
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_cur_pos, self.timer)       
-        #self.timer.Start(100)
+        self.timer.Start(100)
  
         #timer 2
         self.timer2 = wx.Timer(self)
@@ -351,7 +351,7 @@ def encoder_get():
 
 if __name__ == "__main__":
     app = wx.App()
-    #telescope = Telescope()
+    telescope = Telescope()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()

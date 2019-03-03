@@ -4,7 +4,7 @@ class Telescope():
 
     def __init__(self, pi = None):
 
-	if pi is None:
+        if pi is None:
             pi = pigpio.pi()
         self.alt_encoder = Encoder(27, 17, "alt")
         self.az_encoder  = Encoder(18, 22, "az")
@@ -69,9 +69,9 @@ class Telescope():
         elif alt_err >= 60:
             self.alt_motor.set_speed(4)
         elif alt_err >= 50:
-	    self.alt_motor.set_speed(3)
+            self.alt_motor.set_speed(3)
         elif alt_err >= 30:
-	    self.alt_motor.set_speed(2)
+            self.alt_motor.set_speed(2)
         elif alt_err >= 1:
             self.alt_motor.set_speed(1)
         elif alt_err >= 0:
@@ -113,14 +113,13 @@ class Telescope():
         tar_alt - the target altitude
         Original Author: Benjamin Vaughan
         """
-        while 1:
 
-            cur_az = self.az_encoder.get_degrees()
-            cur_alt = self.alt_encoder.get_degrees()
-            if cur_az != tar_az:
-                self.az_update(tar_az)
-            if cur_alt != tar_alt:
-                 self.alt_update(tar_alt)
+        cur_az = self.az_encoder.get_degrees()
+        cur_alt = self.alt_encoder.get_degrees()
+        if cur_az != tar_az:
+            self.az_update(tar_az)
+        if cur_alt != tar_alt:
+             self.alt_update(tar_alt)
     
 if __name__ == "__main__":
     telescope = Telescope()
