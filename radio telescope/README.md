@@ -8,3 +8,8 @@ Furthermore, the GUI will not open until the telescope is connected to stellariu
 
 As a brief overview of how the program works there will be the option to have the telescope in manual mode where the user can move the telescope around in alt/az coordinates as he/she wishes, and there will be an automatic mode where the user selects a celestial object in stellarium and has the telescope point to that object. The basic overview for how the automatic mode works is that the telescope reads values from the encoders and based on these encoder values the program  knows the position of the telescope in the celestial sphere and checks to see if the desired object is within .1 degrees of the telescopes position in both the altitude and azimuth directions. If it is not then the telescope keeps moving until it is, if it is within .1 degrees then the telescope will stop moving in that direction. The .1 degrees comes from the fact that the error of the position of the scope is .1 degree in both directions. It therefore may be necessary to switch to manual mode to zero in on the target object.
 
+There are some dependencies that need to be installed for the GUI to work. They are the following:
+
+Astropy for python > 3.5
+WxPython for python > 3.5
+NOVAS for python > 3
