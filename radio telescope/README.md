@@ -13,3 +13,15 @@ There are some dependencies that need to be installed for the GUI to work. They 
 Astropy for python > 3.5
 WxPython for python > 3.5
 NOVAS for python > 3
+
+Astropy and NOVAS can you can get through pip, however for wxPython you have to build it. 
+
+To install Astropy and NOVAS first do:
+
+Sudo apt-get install pip
+
+then 
+
+sudo pip3 install novas
+sudo pip3 install astropy
+
