@@ -28,3 +28,6 @@ sudo pip3 install novas
 
 sudo pip3 install astropy
 
+to build wxPython follow this link
+
+https://wiki.wxpython.org/BuildWxPythonOnRaspberryPi?fbclid=IwAR1-ENyroA_59GshzHPYHAboJNjWSDt9IsY_WWZXJ82TuHW_DurZowuOBeI
