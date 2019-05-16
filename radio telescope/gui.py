@@ -11,7 +11,7 @@ import time
 from parts import *
 from telescope import *
 from stellarium import *
-
+from splash import Splash
 class Frame(wx.Frame):
 
     def __init__(self, parent, title):
@@ -19,9 +19,11 @@ class Frame(wx.Frame):
         self.panel = wx.Panel(self)
 
         #initializing class
+        self.start_splash()
         self.converter = Ra_Dec()
         self.stellarium = Stellarium()
-        #self.stellarium.accept()
+        self.stellarium.accept()
+        self.end_splash()
         
         #menu bar
         menubar = wx.MenuBar()
@@ -46,28 +48,6 @@ class Frame(wx.Frame):
         top_sizer.Add(right_sizer, border=10, flag=wx.ALL|wx.EXPAND)
         
 
-
-    def init_auto_mode(self):
-        #Event timer
-        self.Bind(wx.EVT_TIMER, self.get_cur_pos)
-
-        #close button
-        self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
-
-
-        #menu bar
-        menubar = wx.MenuBar()
-        mode = wx.Menu()
-        auto_mode = wx.MenuItem(mode)
-        refrac_mode = wx.MenuItem(mode)
-        menubar.Append(mode, "mode")
-        self.Bind(wx.EVT_MENU, self.init_auto_mode(), auto_mode)
-        self.Bind(wx.EVT_MENU, self.init_refrac_mode(), refrac_mode)
-        self.SetMenuBar(menubar)
-
-
-    def init_refrac_mode(self):
-        print("this function needs to be written")
 
     def init_auto_mode(self):
         
@@ -339,7 +319,13 @@ class Frame(wx.Frame):
         #test code
         self.curr_alt.SetValue(str(alt))
         self.curr_az.SetValue(str(az))
-                                     
+
+    def start_splash(self):
+        splash = Splash()
+
+    def end_splash(self):
+        splash.destroy()
+    
 
 def encoder_get():
     cur_alt = telescope.alt_encoder.get_degrees()
@@ -351,7 +337,7 @@ def encoder_get():
 
 if __name__ == "__main__":
     app = wx.App()
-    telescope = Telescope()
+    #telescope = Telescope()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()
