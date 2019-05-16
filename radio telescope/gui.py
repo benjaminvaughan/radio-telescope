@@ -12,6 +12,7 @@ from parts import *
 from telescope import *
 from stellarium import *
 from splash import Splash
+
 class Frame(wx.Frame):
 
     def __init__(self, parent, title):
@@ -23,7 +24,6 @@ class Frame(wx.Frame):
         self.converter = Ra_Dec()
         self.stellarium = Stellarium()
         self.stellarium.accept()
-        self.end_splash()
         
         #menu bar
         menubar = wx.MenuBar()
@@ -74,7 +74,7 @@ class Frame(wx.Frame):
         #stellarium timer2
         self.sttimer2 = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_data, self.sttimer2)
-        self.sttimer2.Start(100)
+        self.sttimer2.Start(1000)
 
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
@@ -328,7 +328,7 @@ class Frame(wx.Frame):
     
 
 def encoder_get():
-    cur_alt = telescope.alt_encoder.get_degrees()
+    cur_alt = telescope.actuator.get_degrees()
     cur_az = telescope.az_encoder.get_degrees()
     return cur_alt, cur_az
     
