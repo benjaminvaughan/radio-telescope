@@ -58,8 +58,7 @@ class Telescope():
         """
         alt_err = self.alt_dir(tar_alt)
         alt_err = abs(alt_err)
-
-        if alt_err < 30:
+        if alt_err > 0 and alt_err < 40:
             self.actuator.turn_motor()
         else:
             self.actuator.kill()

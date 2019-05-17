@@ -105,7 +105,6 @@ class Stellarium():
                            0)
         self.conn.send(resp)
         error = 'No error to report'
-        return error
 
     def accept(self):
         open_sockets = []

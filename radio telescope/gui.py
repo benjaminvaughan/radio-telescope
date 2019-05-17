@@ -74,7 +74,7 @@ class Frame(wx.Frame):
         #stellarium timer2
         self.sttimer2 = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.get_data, self.sttimer2)
-        self.sttimer2.Start(1000)
+        self.sttimer2.Start(500)
 
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
@@ -82,7 +82,7 @@ class Frame(wx.Frame):
 
         #Emergency Stop
         self.emergency_stop = wx.Button(self.panel, -1, "Emergency Stop")
-        self.Bind(wx.EVT_BUTTON, self.emergency_stop, self.emergency_stop)
+        self.Bind(wx.EVT_BUTTON, self.emergency_f, self.emergency_stop)
 
         #calculate button
         self.btn = wx.Button(self.panel, -1, "Calculate")
@@ -305,9 +305,8 @@ class Frame(wx.Frame):
         self.tele_de.SetValue(str(dec))
 
     def send_data(self, e):
-        error = self.stellarium.send(float(self.tele_de.GetValue()),
+        self.stellarium.send(float(self.tele_de.GetValue()),
                                 float(self.tele_ra.GetValue()))
-        self.error.SetValue(error)
 
     def get_data(self, e):
         alt, az, error, flag = self.stellarium.receive_coords()
@@ -317,12 +316,14 @@ class Frame(wx.Frame):
             self.error.SetValue(error)
 
     def calibrate(self, e):
-        alt = set_ra
-        az = set_de
+        az = self.set_ra.GetValue()
+        alt = self.set_de.GetValue()
         #telescope.azimuth_encoder.set_encoder(az)
         #telescope.altitudel_encoder.set_encoder(alt)
 
         #test code
+        telescope.az_encoder.set_encoder(alt)
+        telescope.actuator.set_encoder(az)
         self.curr_alt.SetValue(str(alt))
         self.curr_az.SetValue(str(az))
 
@@ -332,6 +333,9 @@ class Frame(wx.Frame):
     def end_splash(self):
         splash.destroy()
     
+    def emergency_f(self, e):
+        telescope.actuator.kill()
+        telescope.az_motor.set_speed(0)
 
 def encoder_get():
     cur_alt = telescope.actuator.get_degrees()
