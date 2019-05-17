@@ -80,6 +80,10 @@ class Frame(wx.Frame):
         self.btn2 = wx.Button(self.panel, -1, "Slew")
         self.Bind(wx.EVT_BUTTON, self.slew, self.btn2)
 
+        #Emergency Stop
+        self.emergency_stop = wx.Button(self.panel, -1, "Emergency Stop")
+        self.Bind(wx.EVT_BUTTON, self.emergency_stop, self.emergency_stop)
+
         #calculate button
         self.btn = wx.Button(self.panel, -1, "Calculate")
         self.Bind(wx.EVT_BUTTON, self.calculate, self.btn)
@@ -143,9 +147,9 @@ class Frame(wx.Frame):
 
         #creating the set ra and dec box
         self.set_ra = wx.TextCtrl(self.panel, -1)
-        self.set_ra_label = wx.StaticText(self.panel, label="Set Right Ascension")
+        self.set_ra_label = wx.StaticText(self.panel, label="Set Altitude")
         self.set_de = wx.TextCtrl(self.panel, -1)
-        self.set_de_label = wx.StaticText(self.panel, label="Set Declination")
+        self.set_de_label = wx.StaticText(self.panel, label="Set Azimuth")
 
         #creating difference printout
         width = 200
@@ -185,6 +189,8 @@ class Frame(wx.Frame):
         right_sizer.Add(self.set_de_label)
         right_sizer.Add(self.set_de)
         right_sizer.Add(self.calibrate_btn)
+        right_sizer.Add(self.emergency_stop)
+        
         
         #left sizer
         left_sizer.Add(self.ra_lab)
@@ -311,8 +317,8 @@ class Frame(wx.Frame):
             self.error.SetValue(error)
 
     def calibrate(self, e):
-        alt, az, error = self.converter.calculate(float(self.set_ra.GetValue()),
-                                                  float(self.set_de.GetValue()))
+        alt = set_ra
+        az = set_de
         #telescope.azimuth_encoder.set_encoder(az)
         #telescope.altitudel_encoder.set_encoder(alt)
 
@@ -337,7 +343,7 @@ def encoder_get():
 
 if __name__ == "__main__":
     app = wx.App()
-    #telescope = Telescope()
+    telescope = Telescope()
     frame = Frame(None, "Radio Telescope GUI")
     thread = Thread(target = encoder_get)
     thread.start()
