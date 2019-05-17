@@ -13,7 +13,6 @@ from telescope import *
 from stellarium import *
 from splash import Splash
 
-
 class Frame(wx.Frame):
 
     def __init__(self, parent, title):
@@ -21,9 +20,9 @@ class Frame(wx.Frame):
         self.panel = wx.Panel(self)
 
         #initializing class
+        self.start_splash()
         self.converter = Ra_Dec()
         self.stellarium = Stellarium()
-        self.splash = Splash()
         self.stellarium.accept()
         
         #menu bar
@@ -49,28 +48,6 @@ class Frame(wx.Frame):
         top_sizer.Add(right_sizer, border=10, flag=wx.ALL|wx.EXPAND)
         
 
-
-    def init_auto_mode(self):
-        #Event timer
-        self.Bind(wx.EVT_TIMER, self.get_cur_pos)
-
-        #close button
-        self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
-
-
-        #menu bar
-        menubar = wx.MenuBar()
-        mode = wx.Menu()
-        auto_mode = wx.MenuItem(mode)
-        refrac_mode = wx.MenuItem(mode)
-        menubar.Append(mode, "mode")
-        self.Bind(wx.EVT_MENU, self.init_auto_mode(), auto_mode)
-        self.Bind(wx.EVT_MENU, self.init_refrac_mode(), refrac_mode)
-        self.SetMenuBar(menubar)
-
-
-    def init_refrac_mode(self):
-        print("this function needs to be written")
 
     def init_auto_mode(self):
         
@@ -102,6 +79,10 @@ class Frame(wx.Frame):
         #slew button
         self.btn2 = wx.Button(self.panel, -1, "Slew")
         self.Bind(wx.EVT_BUTTON, self.slew, self.btn2)
+
+        #Emergency Stop
+        self.emergency_stop = wx.Button(self.panel, -1, "Emergency Stop")
+        self.Bind(wx.EVT_BUTTON, self.emergency_stop, self.emergency_stop)
 
         #calculate button
         self.btn = wx.Button(self.panel, -1, "Calculate")
@@ -166,9 +147,9 @@ class Frame(wx.Frame):
 
         #creating the set ra and dec box
         self.set_ra = wx.TextCtrl(self.panel, -1)
-        self.set_ra_label = wx.StaticText(self.panel, label="Set Right Ascension")
+        self.set_ra_label = wx.StaticText(self.panel, label="Set Altitude")
         self.set_de = wx.TextCtrl(self.panel, -1)
-        self.set_de_label = wx.StaticText(self.panel, label="Set Declination")
+        self.set_de_label = wx.StaticText(self.panel, label="Set Azimuth")
 
         #creating difference printout
         width = 200
@@ -208,6 +189,8 @@ class Frame(wx.Frame):
         right_sizer.Add(self.set_de_label)
         right_sizer.Add(self.set_de)
         right_sizer.Add(self.calibrate_btn)
+        right_sizer.Add(self.emergency_stop)
+        
         
         #left sizer
         left_sizer.Add(self.ra_lab)
@@ -334,15 +317,21 @@ class Frame(wx.Frame):
             self.error.SetValue(error)
 
     def calibrate(self, e):
-        alt, az, error = self.converter.calculate(float(self.set_ra.GetValue()),
-                                                  float(self.set_de.GetValue()))
+        alt = set_ra
+        az = set_de
         #telescope.azimuth_encoder.set_encoder(az)
         #telescope.altitudel_encoder.set_encoder(alt)
 
         #test code
         self.curr_alt.SetValue(str(alt))
         self.curr_az.SetValue(str(az))
-                                     
+
+    def start_splash(self):
+        splash = Splash()
+
+    def end_splash(self):
+        splash.destroy()
+    
 
 def encoder_get():
     cur_alt = telescope.actuator.get_degrees()
