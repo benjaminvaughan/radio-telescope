@@ -22,6 +22,11 @@ class Actuator():
         self.inches = 0
 
     def set_encoder(self, value):
+        """
+        The purpose of this function is to calibrate the encoder to the current position of the radio telescope
+        inputs: Value - the current altitude of the radio telescope
+        outputs: None
+        """
         self.degrees = value
 
     def callback_a(self, pin, level, tick):
@@ -35,6 +40,7 @@ class Actuator():
             self.position -= 1
             self.inches = self.position * self.ppi
         self.degrees = math.atan(self.inches/10)
+        self.degrees = 90 - self.degrees
 
     def get_degrees(self):
         return self.degrees
