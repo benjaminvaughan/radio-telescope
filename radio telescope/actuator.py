@@ -39,8 +39,8 @@ class Actuator():
         else:
             self.position -= 1
             self.inches = self.position * self.ppi
-        self.degrees = math.atan(self.inches/10)
-        self.degrees = 90 - self.degrees
+        self.delta_degrees = math.atan(self.inches/10)
+        self.degrees = self.degrees - self.delta_degrees
 
     def get_degrees(self):
         return self.degrees
@@ -68,6 +68,8 @@ class Actuator():
         self.pi.set_PWM_frequency(self.pwm, 0)
         self.pi.set_PWM_dutycycle(self.pwm, 0)
 
+    def set_encoder(self, value):
+        self.degrees = value
 
 if __name__ == "__main__":
     actuator = Actuator(27, 22, 23, 25, 24)
